@@ -4,10 +4,48 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const result = await pool.query("select * from courses");
+    const { sort_by, order } = req.query;
+
+    const validSortFields = ["price", "rating"];
+    const sortField = validSortFields.includes(sort_by)
+      ? sort_by
+      : "created_at";
+
+    const sortOrder = order && order.toLowerCase() === "desc" ? "DESC" : "ASC";
+
+    let orderByClause = "";
+    if (sortField === "rating") {
+      orderByClause = `ORDER BY average_rating ${sortOrder}`;
+    } else {
+      orderByClause = `ORDER BY c.${sortField} ${sortOrder}`;
+    }
+
+    const result = await pool.query(
+      `
+      SELECT
+        c.id,
+        c.course_name,
+        c.description,
+        c.thumbnail_url,
+        c.video_url,
+        c.created_at,
+        c.updated_at,
+        c.price,
+        u.full_name AS author,
+        COALESCE(ROUND(AVG(cr.rating), 2), 0) as average_rating
+      FROM
+        courses c
+      JOIN
+        users u ON c.author = u.id
+      LEFT JOIN course_ratings cr ON c.id = cr.course_id
+      GROUP BY c.id, u.id
+      ${orderByClause};
+      `,
+    );
     res.status(200).send(result.rows);
   } catch (err) {
     res.status(400).json({ message: err });
   }
 });
+
 module.exports = router;
