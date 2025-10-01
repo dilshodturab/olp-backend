@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS courses (
 	thumbnail_url varchar(500) NULL,
 	video_url varchar(500) NULL,
 	author int4 NOT NULL,
-    price DECIMAL(10,2) DEFAULT 0.00 CHECK (price >= 0),
+  price DECIMAL(10,2) DEFAULT 0.00 CHECK (price >= 0),
   rating DECIMAL(2,1) DEFAULT 0.0 CHECK (rating >= 0.0 AND rating <= 5.0),
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
