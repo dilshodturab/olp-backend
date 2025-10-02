@@ -2,7 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
-const allowedOrigins = ["http://localhost:4200", "htps://udemy-uz.netlify.app"];
+const allowedOrigins = [
+  "http://localhost:4200",
+  "https://udemy-uz.netlify.app",
+];
 
 const corsOptions = {
   origin: function (origin, callback) {
