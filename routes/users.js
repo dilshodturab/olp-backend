@@ -23,7 +23,7 @@ router.post("/register", async (req, res) => {
 
     if (existingUser.rows.length > 0) {
       return res.status(409).json({
-        error: "Ushbu email orqali tizimdan allaqachon ro'yxatdan o'tkazilgan",
+        error: "Ushbu email tizimdan allaqachon ro'yxatdan o'tkazilgan",
       });
     }
 
