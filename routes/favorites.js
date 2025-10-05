@@ -51,4 +51,45 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  try {
+    if (!req.body) {
+      return res.status(400).json({
+        error: "kerakli parametrlarni berib yuborish kerak",
+      });
+    }
+
+    const { user_id } = req.body;
+    if (!user_id) {
+      return res.status(400).json({
+        error: "Hamma parametrlarni kiritish kerak: user_id",
+      });
+    }
+
+    const result = await pool.query(
+      `
+        SELECT 
+          f.id,
+          c.course_name,
+          c.description,
+          c.thumbnail_url,
+          c.video_url,
+          c.price,
+          u.full_name AS author,
+          COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating
+        FROM favorites f
+        JOIN users u ON u.id = f.user_id
+        JOIN courses c ON c.id = f.course_id
+        LEFT JOIN course_ratings cr ON f.course_id = cr.course_id
+        WHERE f.user_id = $1
+        GROUP BY f.id, u.full_name, c.course_name, c.description, c.thumbnail_url, c.video_url, c.price ;
+    `,
+      [user_id],
+    );
+    res.status(200).send(result.rows);
+  } catch (err) {
+    res.status(400).json({ error: err });
+  }
+});
+
 module.exports = router;
