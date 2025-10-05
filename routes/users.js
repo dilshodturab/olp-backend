@@ -12,7 +12,7 @@ router.post("/register", async (req, res) => {
 
     if (!req.body || !full_name || !email || !password) {
       return res.status(400).json({
-        error: "Hamma parametrlayni kiritish kerak: full_name, email, password",
+        error: "Hamma parametrlarni kiritish kerak: full_name, email, password",
       });
     }
 
