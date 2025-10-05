@@ -9,7 +9,6 @@ router.get("/", async (req, res) => {
      SELECT
         c.id,
         c.course_name,
-        c.description,
         c.thumbnail_url,
         c.video_url,
         c.price,
@@ -20,7 +19,7 @@ router.get("/", async (req, res) => {
       JOIN
         users u ON c.author = u.id
       LEFT JOIN course_ratings cr ON c.id = cr.course_id
-      GROUP BY c.id, u.id, c.course_name, c.description, c.thumbnail_url, c.video_url, c.price, u.full_name, c.created_at 
+      GROUP BY c.id, u.id, c.course_name, c.thumbnail_url, c.video_url, c.price, u.full_name, c.created_at 
       ORDER BY c.created_at;      `,
     );
     res.status(200).send(result.rows);
@@ -29,4 +28,31 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `
+        SELECT
+          c.id,
+          c.course_name,
+          c.description,
+          c.thumbnail_url,
+          c.video_url,
+          c.price,
+          u.full_name AS author,
+          COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating
+        FROM courses c
+        JOIN users u ON c.author = u.id
+        LEFT JOIN course_ratings cr ON c.id = cr.course_id
+        WHERE c.id = $1
+        GROUP BY c.id, u.full_name, c.course_name, c.description, c.thumbnail_url, c.video_url, c.price;
+    `,
+      [id],
+    );
+    res.status(200).send(result.rows[0]);
+  } catch (err) {
+    res.status(400).json({ message: err });
+  }
+});
 module.exports = router;
