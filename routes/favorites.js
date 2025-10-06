@@ -5,7 +5,9 @@ const router = express.Router();
 router.post("/", async (req, res) => {
   try {
     if (!req.body)
-      return res.status(400).send("kerakli parametrlarni berib yuborish kerak");
+      return res
+        .status(400)
+        .send("Hamma parametrlarni kiritish kerak: user_id, course_id");
 
     const { user_id, course_id } = req.body;
 

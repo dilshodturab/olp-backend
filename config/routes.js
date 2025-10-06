@@ -3,6 +3,7 @@ const usersRoute = require("../routes/users");
 const coursesRoute = require("../routes/courses");
 const favoritesRoute = require("../routes/favorites");
 const addToCartRoute = require("../routes/addToCart");
+const boughtCoursesRoute = require("../routes/boughtCourses");
 
 module.exports = function (app) {
   app.use(express.json());
@@ -11,4 +12,5 @@ module.exports = function (app) {
   app.use("/courses", coursesRoute);
   app.use("/favorites", favoritesRoute);
   app.use("/cart", addToCartRoute);
+  app.use("/buy", boughtCoursesRoute);
 };

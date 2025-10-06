@@ -19,7 +19,10 @@ app.use(cors(corsOptions));
 require("./config/routes")(app);
 
 app.get("/", async (req, res) => {
-  res.status(200).send("OLP api ishlayapti!");
+  res.status(200).send(
+    `<p>Bu OLP - Online Learning Platform backend serveri. Siz frontend qismiga o'tishingiz kerak</p>
+      <a href='https://0lp.netlify.app'> OLP fronti ga o'tish</a>`,
+  );
 });
 
 const PORT = process.env.PORT || 5000;
