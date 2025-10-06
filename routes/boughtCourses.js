@@ -60,18 +60,23 @@ router.post("/", async (req, res) => {
 
     const bouthtCourse = await pool.query(
       `
-      INSERT INTO favorites (user_id, course_id) VALUES($1, $2) RETURNING id;
+      INSERT INTO bought_courses (user_id, course_id) VALUES($1, $2) RETURNING id;
       `,
       [user_id, course_id],
     );
 
-    await pool.query(`
-    
-    `);
+    await pool.query(
+      `
+    UPDATE users
+    SET balance = balance - $1
+    WHERE id = $2;
+    `,
+      [coursePrice.rows[0].price, user_id],
+    );
 
     res.status(201).json({
       message: "Kurs muvoffaqiyatli sotib olindi",
-      data: insertedData.rows[0],
+      data: bouthtCourse.rows[0],
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
