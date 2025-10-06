@@ -5,7 +5,9 @@ const router = express.Router();
 router.post("/", async (req, res) => {
   try {
     if (!req.body)
-      return res.status(400).send("kerakli parametrlarni berib yuborish kerak");
+      return res
+        .status(400)
+        .send("Hamma parametrlarni kiritish kerak: user_id, course_id");
 
     const { user_id, course_id } = req.body;
 
@@ -18,7 +20,7 @@ router.post("/", async (req, res) => {
     const existingData = await pool.query(
       `
       SELECT id 
-      FROM favorites 
+      FROM cart
       WHERE user_id = $1
       AND course_id = $2;
       `,
@@ -28,7 +30,7 @@ router.post("/", async (req, res) => {
     if (existingData.rows.length > 0) {
       await pool.query(
         `
-       DELETE FROM favorites WHERE user_id = $1 AND course_id = $2; 
+       DELETE FROM cart WHERE user_id = $1 AND course_id = $2; 
       `,
         [user_id, course_id],
       );
@@ -37,20 +39,19 @@ router.post("/", async (req, res) => {
 
     const insertedData = await pool.query(
       `
-      INSERT INTO favorites (user_id, course_id) VALUES($1, $2) RETURNING id;
+      INSERT INTO cart (user_id, course_id) VALUES($1, $2) RETURNING id;
       `,
       [user_id, course_id],
     );
 
     res.status(201).json({
-      message: "Favoritesga muvoffaqiyatli qo'shildi",
+      message: "Cartga muvoffaqiyatli qo'shildi",
       data: insertedData.rows[0],
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 router.get("/", async (req, res) => {
   try {
     if (!req.body) {
@@ -69,7 +70,7 @@ router.get("/", async (req, res) => {
     const result = await pool.query(
       `
         SELECT 
-          f.id,
+          k.id,
           c.course_name,
           c.description,
           c.thumbnail_url,
@@ -77,12 +78,12 @@ router.get("/", async (req, res) => {
           c.price,
           u.full_name AS author,
           COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating
-        FROM favorites f
-        JOIN users u ON u.id = f.user_id
-        JOIN courses c ON c.id = f.course_id
-        LEFT JOIN course_ratings cr ON f.course_id = cr.course_id
-        WHERE f.user_id = $1
-        GROUP BY f.id, u.full_name, c.course_name, c.description, c.thumbnail_url, c.video_url, c.price ;
+        FROM cart k
+        JOIN users u ON u.id = k.user_id
+        JOIN courses c ON c.id = k.course_id
+        LEFT JOIN course_ratings cr ON k.course_id = cr.course_id
+        WHERE k.user_id = $1
+        GROUP BY k.id, u.full_name, c.course_name, c.description, c.thumbnail_url, c.video_url, c.price ;
     `,
       [user_id],
     );

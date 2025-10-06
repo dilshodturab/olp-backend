@@ -47,3 +47,20 @@ create table if not exists favorites(
   course_id INT4 NOT NULL,
   user_id INT4 not null
 )
+
+CREATE TABLE IF NOT EXISTS cart(
+    id serial PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    course_id int4 NOT NULL,
+    user_id int4 NOT NULL
+    )
+
+    CREATE TABLE IF NOT EXISTS bought_courses(
+    id serial PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    course_id int4 NOT NULL,
+    user_id int4 NOT NULL
+    )
+
