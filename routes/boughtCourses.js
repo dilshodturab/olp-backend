@@ -4,10 +4,11 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    if (!req.body)
+    if (!req.body) {
       return res
         .status(400)
         .send("Hamma parametrlarni kiritish kerak: user_id, course_id");
+    }
 
     const { user_id, course_id } = req.body;
 
@@ -65,19 +66,62 @@ router.post("/", async (req, res) => {
       [user_id, course_id],
     );
 
-    await pool.query(
+    const finalBalance = await pool.query(
       `
     UPDATE users
     SET balance = balance - $1
-    WHERE id = $2;
+    WHERE id = $2
+    RETURNING balance;
     `,
       [coursePrice.rows[0].price, user_id],
     );
 
     res.status(201).json({
       message: "Kurs muvoffaqiyatli sotib olindi",
-      data: bouthtCourse.rows[0],
+      userBalance: finalBalance.rows[0].balance,
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/", async (req, res) => {
+  try {
+    if (!req.body) {
+      return res
+        .status(400)
+        .send("Hamma parametrlarni kiritish kerak: user_id");
+    }
+
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({
+        error: "Hamma parametrlarni kiritish kerak: user_id",
+      });
+    }
+
+    const result = await pool.query(
+      `
+        SELECT 
+          bc.id,
+          c.course_name,
+          c.description,
+          c.thumbnail_url,
+          c.video_url,
+          c.price,
+          u.full_name AS author,
+          COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating
+        FROM bought_courses bc
+        JOIN users u ON u.id = bc.user_id
+        JOIN courses c ON c.id = bc.course_id
+        LEFT JOIN course_ratings cr ON bc.course_id = cr.course_id
+        WHERE bc.user_id = $1
+        GROUP BY bc.id, u.full_name, c.course_name, c.description, c.thumbnail_url, c.video_url, c.price ;
+    `,
+      [user_id],
+    );
+    res.status(200).send(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
