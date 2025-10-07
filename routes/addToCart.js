@@ -52,16 +52,10 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.get("/", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    if (!req.body) {
-      return res.status(400).json({
-        error: "Hamma parametrlarni kiritish kerak: user_id",
-      });
-    }
-
-    const { user_id } = req.body;
-    if (!user_id) {
+    const { id } = req.params;
+    if (!id) {
       return res.status(400).json({
         error: "Hamma parametrlarni kiritish kerak: user_id",
       });
@@ -70,10 +64,8 @@ router.get("/", async (req, res) => {
     const result = await pool.query(
       `
         SELECT 
-          k.id,
-          c.id AS course_id,
+          c.id,
           c.course_name,
-          c.description,
           c.thumbnail_url,
           c.video_url,
           c.price,
@@ -84,9 +76,9 @@ router.get("/", async (req, res) => {
         JOIN courses c ON c.id = k.course_id
         LEFT JOIN course_ratings cr ON k.course_id = cr.course_id
         WHERE k.user_id = $1
-        GROUP BY k.id, c.id, u.full_name, c.course_name, c.description, c.thumbnail_url, c.video_url, c.price ;
+        GROUP BY c.id, u.full_name, c.course_name, c.thumbnail_url, c.video_url, c.price ;
     `,
-      [user_id],
+      [id],
     );
     res.status(200).send(result.rows);
   } catch (err) {
