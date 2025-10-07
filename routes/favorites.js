@@ -72,9 +72,7 @@ router.get("/", async (req, res) => {
       `
         SELECT 
           f.id,
-          c.id AS course_id,
           c.course_name,
-          c.description,
           c.thumbnail_url,
           c.video_url,
           c.price,
@@ -85,7 +83,7 @@ router.get("/", async (req, res) => {
         JOIN courses c ON c.id = f.course_id
         LEFT JOIN course_ratings cr ON f.course_id = cr.course_id
         WHERE f.user_id = $1
-        GROUP BY f.id, c.id, u.full_name, c.course_name, c.description, c.thumbnail_url, c.video_url, c.price ;
+        GROUP BY f.id, u.full_name, c.course_name, c.thumbnail_url, c.video_url, c.price ;
     `,
       [user_id],
     );
