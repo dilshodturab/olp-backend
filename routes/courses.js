@@ -31,6 +31,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    const { user_id } = req.query;
     const result = await pool.query(
       `
         SELECT
@@ -41,14 +42,15 @@ router.get("/:id", async (req, res) => {
           c.video_url,
           c.price,
           u.full_name AS author,
-          COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating
+          COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating,
+          EXISTS(SELECT 1 FROM favorites f WHERE f.course_id = c.id AND f.user_id = $2) as "isFavorite"
         FROM courses c
         JOIN users u ON c.author = u.id
         LEFT JOIN course_ratings cr ON c.id = cr.course_id
         WHERE c.id = $1
         GROUP BY c.id, u.full_name, c.course_name, c.description, c.thumbnail_url, c.video_url, c.price;
     `,
-      [id],
+      [id, user_id],
     );
     res.status(200).send(result.rows[0]);
   } catch (err) {
