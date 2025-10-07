@@ -10,7 +10,6 @@ router.get("/", async (req, res) => {
         c.id,
         c.course_name,
         c.thumbnail_url,
-        c.video_url,
         c.price,
         u.full_name AS author,
         COALESCE(ROUND(AVG(cr.rating), 2), 0) as average_rating
@@ -19,7 +18,7 @@ router.get("/", async (req, res) => {
       JOIN
         users u ON c.author = u.id
       LEFT JOIN course_ratings cr ON c.id = cr.course_id
-      GROUP BY c.id, u.id, c.course_name, c.thumbnail_url, c.video_url, c.price, u.full_name, c.created_at 
+      GROUP BY c.id, u.id, c.course_name, c.thumbnail_url, c.price, u.full_name, c.created_at 
       ORDER BY c.created_at;      `,
     );
     res.status(200).send(result.rows);
