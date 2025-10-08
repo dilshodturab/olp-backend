@@ -4,6 +4,8 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
+    const { user_id } = req.query;
+
     const result = await pool.query(
       `
      SELECT
@@ -12,14 +14,17 @@ router.get("/", async (req, res) => {
         c.thumbnail_url,
         c.price,
         u.full_name AS author,
-        COALESCE(ROUND(AVG(cr.rating), 2), 0) as average_rating
+        COALESCE(ROUND(AVG(cr.rating), 2), 0) as average_rating,
+        EXISTS(SELECT 1 FROM cart ca WHERE ca.course_id = c.id AND ca.user_id = $1) as "isInCart"
       FROM
         courses c
       JOIN
         users u ON c.author = u.id
       LEFT JOIN course_ratings cr ON c.id = cr.course_id
       GROUP BY c.id, u.id, c.course_name, c.thumbnail_url, c.price, u.full_name, c.created_at 
-      ORDER BY c.created_at;      `,
+      ORDER BY c.created_at;
+      `,
+      [user_id],
     );
     res.status(200).send(result.rows);
   } catch (err) {
