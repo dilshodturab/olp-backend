@@ -59,7 +59,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const bouthtCourse = await pool.query(
+    await pool.query(
       `
       INSERT INTO bought_courses (user_id, course_id) VALUES($1, $2) RETURNING id;
       `,
