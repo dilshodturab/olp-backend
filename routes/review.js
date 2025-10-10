@@ -10,7 +10,8 @@ router.get("/:id", async (req, res) => {
       SELECT 
         cr.id,
         u.full_name,
-        cr.review
+        cr.review,
+        cr.rating
       FROM course_ratings cr 
       JOIN users u ON u.id = cr.user_id
       WHERE cr.course_id = $1;
