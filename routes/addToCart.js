@@ -52,6 +52,24 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.get("/count/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `
+        SELECT count(id)
+        FROM cart
+        WHERE user_id = $1`,
+      [id],
+    );
+    return res.status(200).send(result.rows[0].count);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
