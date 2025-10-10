@@ -25,20 +25,14 @@ CREATE TABLE IF NOT EXISTS courses (
 	CONSTRAINT courses_author_fkey FOREIGN KEY (author) REFERENCES public.users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE public.course_ratings (
+CREATE TABLE course_ratings (
     id SERIAL PRIMARY KEY,
     course_id INT4 NOT NULL,
     user_id INT4 NOT NULL,
-    rating INT4 NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    rating INT4 DEFAULT 1 CHECK (rating >= 1 AND rating <= 5),
     review TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    CONSTRAINT course_ratings_course_fk FOREIGN KEY (course_id) 
-        REFERENCES public.courses(id) ON DELETE CASCADE,
-    CONSTRAINT course_ratings_user_fk FOREIGN KEY (user_id) 
-        REFERENCES public.users(id) ON DELETE CASCADE,
-    CONSTRAINT unique_user_course_rating UNIQUE(user_id, course_id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 create table if not exists favorites(
