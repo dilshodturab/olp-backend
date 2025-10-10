@@ -14,7 +14,8 @@ router.get("/:id", async (req, res) => {
         cr.rating
       FROM course_ratings cr 
       JOIN users u ON u.id = cr.user_id
-      WHERE cr.course_id = $1;
+      WHERE cr.course_id = $1
+      ORDER BY cr.created_at DESC;
     `,
       [id],
     );
