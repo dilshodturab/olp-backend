@@ -85,17 +85,11 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    if (!req.body) {
-      return res
-        .status(400)
-        .send("Hamma parametrlarni kiritish kerak: user_id");
-    }
+    const { id } = req.params;
 
-    const { user_id } = req.body;
-
-    if (!user_id) {
+    if (!id) {
       return res.status(400).json({
         error: "Hamma parametrlarni kiritish kerak: user_id",
       });
@@ -109,7 +103,8 @@ router.get("/", async (req, res) => {
           c.thumbnail_url,
           c.price,
           u.full_name AS author,
-          COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating
+          COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating,
+          EXISTS(SELECT 1 FROM bought_courses b WHERE b.course_id = c.id AND b.user_id = $1) as "isBought"
         FROM bought_courses bc
         JOIN courses c ON c.id = bc.course_id
         JOIN users u ON u.id = c.author
@@ -117,7 +112,7 @@ router.get("/", async (req, res) => {
         WHERE bc.user_id = $1
         GROUP BY c.id, u.full_name, c.course_name, c.thumbnail_url, c.price ;
     `,
-      [user_id],
+      [id],
     );
     res.status(200).send(result.rows);
   } catch (err) {

@@ -15,7 +15,8 @@ router.get("/", async (req, res) => {
         c.price,
         u.full_name AS author,
         COALESCE(ROUND(AVG(cr.rating), 2), 0) as average_rating,
-        EXISTS(SELECT 1 FROM cart ca WHERE ca.course_id = c.id AND ca.user_id = $1) as "isInCart"
+        EXISTS(SELECT 1 FROM cart ca WHERE ca.course_id = c.id AND ca.user_id = $1) as "isInCart",
+        EXISTS(SELECT 1 FROM bought_courses b WHERE b.course_id = c.id AND b.user_id = $1) as "isBought"
       FROM
         courses c
       JOIN
@@ -48,7 +49,8 @@ router.get("/:id", async (req, res) => {
           u.full_name AS author,
           COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating,
           EXISTS(SELECT 1 FROM favorites f WHERE f.course_id = c.id AND f.user_id = $2) as "isFavorite",
-          EXISTS(SELECT 1 FROM cart ca WHERE ca.course_id = c.id AND ca.user_id = $2) as "isInCart"
+          EXISTS(SELECT 1 FROM cart ca WHERE ca.course_id = c.id AND ca.user_id = $2) as "isInCart",
+          EXISTS(SELECT 1 FROM bought_courses b WHERE b.course_id = c.id AND b.user_id = $2) as "isBought"
         FROM courses c
         JOIN users u ON c.author = u.id
         LEFT JOIN course_ratings cr ON c.id = cr.course_id
