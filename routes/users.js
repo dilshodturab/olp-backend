@@ -3,6 +3,63 @@ const bcrypt = require("bcrypt");
 const { pool } = require("../config/db");
 const router = express.Router();
 
+/**
+ * @swagger
+ * /users/register:
+ *   post:
+ *     summary: Foydalanuvchini ro'yxatdan o'tkazish
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - full_name
+ *               - email
+ *               - password
+ *             properties:
+ *               full_name:
+ *                 type: string
+ *                 description: Foydalanuvchining to'liq ismi
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Foydalanuvchining email manzili
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *                 description: Foydalanuvchining paroli
+ *     responses:
+ *       201:
+ *         description: Foydalanuvchi muvoffaqiyatli ro'yxatdan o'tkazildi
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     full_name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Noto'g'ri so'rov parametrlari
+ *       409:
+ *         description: Foydalanuvchi allaqachon mavjud
+ *       500:
+ *         description: Server xatosi
+ */
 router.post("/register", async (req, res) => {
   try {
     if (!req.body)
@@ -47,6 +104,60 @@ router.post("/register", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     summary: Foydalanuvchini tizimga kiritish
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Foydalanuvchining email manzili
+ *               password:
+ *                 type: string
+ *                 description: Foydalanuvchining paroli
+ *     responses:
+ *       200:
+ *         description: Muvaffaqiyatli login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     full_name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     balance:
+ *                       type: number
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Noto'g'ri so'rov parametrlari
+ *       401:
+ *         description: Noto'g'ri email yoki password
+ *       500:
+ *         description: Server xatosi
+ */
 router.post("/login", async (req, res) => {
   try {
     if (!req.body)

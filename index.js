@@ -1,9 +1,40 @@
 const express = require("express");
 const cors = require("cors");
 const { pool } = require("./config/db");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJSDoc = require("swagger-jsdoc");
 const app = express();
-
+const PORT = process.env.PORT || 5000;
 const allowedOrigins = ["http://localhost:4200", "https://0lp.netlify.app"];
+
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "OLP backend",
+      version: "1.0.0",
+      description: "API documentation using Swagger",
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+  },
+  apis: ["./index.js", "./routes/*.js"],
+};
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -24,8 +55,6 @@ app.get("/", async (req, res) => {
       <a href='https://0lp.netlify.app'> OLP fronti ga o'tish</a>`,
   );
 });
-
-const PORT = process.env.PORT || 5000;
 
 const checkDbConnection = async () => {
   try {
