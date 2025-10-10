@@ -70,7 +70,8 @@ router.get("/:id", async (req, res) => {
           c.price,
           u.full_name AS author,
           COALESCE(ROUND(AVG(cr.rating), 2), 0) AS average_rating,
-          EXISTS(SELECT 1 FROM cart ca WHERE ca.course_id = c.id AND ca.user_id = $1) as "isInCart"
+          EXISTS(SELECT 1 FROM cart ca WHERE ca.course_id = c.id AND ca.user_id = $1) as "isInCart",
+          EXISTS(SELECT 1 FROM bought_courses b WHERE b.course_id = c.id AND b.user_id = $1) as "isBought"
         FROM cart k
         JOIN courses c ON c.id = k.course_id
         JOIN users u ON u.id = c.author
